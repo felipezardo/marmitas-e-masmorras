@@ -24,6 +24,7 @@
             <h2>Bem-vindos à Taverna, Aventureiros!</h2>
             <p>Faça login para registrar os horrores (e as delícias) que encontramos nas masmorras.</p>
         </section>
+
         <section id="recipe-section" class="app-section" style="display: none;">
             <div class="section-header">
                 <h2>Livro de Receitas Monstrosas</h2>
@@ -35,8 +36,7 @@
                 <form id="recipe-form">
                     <input type="text" id="recipe-title" placeholder="Nome do Prato (Ex: Assado de Basilisco)" required>
                     <input type="text" id="recipe-character" placeholder="Nome do seu Personagem (Ex: Senshi)" required>
-                    <textarea id="recipe-ingredients" placeholder="Ingredientes (Ex: 2 olhos de aranha, 1kg de carne de urso coruja...)" rows="4" required></textarea>
-                    
+                    <textarea id="recipe-ingredients" placeholder="Ingredientes (Ex: 2 olhos de aranha...)" rows="4" required></textarea>
                     <textarea id="recipe-steps" placeholder="Modo de Preparo" rows="4" required></textarea>
                     
                     <label for="recipe-image">Ilustração do prato:</label>
@@ -48,10 +48,9 @@
                     </div>
                 </form>
             </div>
-
-            <div id="recipes-list" class="recipes-grid">
-                </div>
+            <div id="recipes-list" class="recipes-grid"></div>
         </section>
+
         <section id="diary-section" class="app-section" style="display: none;">
             <div class="section-header">
                 <h2>Diário da Campanha</h2>
@@ -59,23 +58,35 @@
             </div>
 
             <div id="diary-form-container" class="form-container" style="display: none;">
-                <h3>Escrever no Diário</h3>
+                <h3 id="diary-form-title">Escrever no Diário</h3>
                 <form id="diary-form">
                     <input type="text" id="diary-title" placeholder="Título do Relato (Ex: A Caverna dos Goblins)" required>
+                    <input type="text" id="diary-character" placeholder="Nome do seu Personagem (Ex: Vane)" required>
                     
-                    <input type="number" id="diary-session" placeholder="Número da Sessão (Ex: 1)" required>
+                    <div class="form-row">
+                        <input type="number" id="diary-session" placeholder="Nº da Sessão (Ex: 1)" min="1" required>
+                        <input type="number" id="diary-fear" placeholder="Medo Atual (0-12)" min="0" max="12" required>
+                    </div>
+
+                    <div class="tags-creator">
+                        <label>Personagens Presentes nesta sessão:</label>
+                        <div class="tag-controls">
+                            <input type="text" id="tag-name" placeholder="Nome do Personagem">
+                            <input type="color" id="tag-color" value="#2e4d35">
+                            <button type="button" id="btn-add-tag" class="action-btn">Adicionar</button>
+                        </div>
+                        <div id="tags-preview" class="tags-list"></div>
+                    </div>
                     
                     <textarea id="diary-content" placeholder="O que aconteceu nesta aventura? Tesouros? Ferimentos? Relate aqui..." rows="6" required></textarea>
                     
                     <div class="form-actions">
                         <button type="button" id="btn-cancel-diary" class="cancel-btn">Cancelar</button>
-                        <button type="submit" class="save-btn">Guardar Memória</button>
+                        <button type="submit" class="save-btn" id="btn-save-diary">Guardar Memória</button>
                     </div>
                 </form>
             </div>
-
-            <div id="diary-list" class="diary-grid">
-                </div>
+            <div id="diary-list" class="diary-grid"></div>
         </section>
     </main>
 
