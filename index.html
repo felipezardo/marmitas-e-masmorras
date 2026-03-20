@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beast Feast - Daggerheart</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="tavern-header">
+        <div class="logo">
+            <h1>Beast Feast</h1>
+            <p>Guia de Sobrevivência e Culinária</p>
+        </div>
+        <nav class="main-nav">
+            <button id="nav-diary" class="nav-btn">Diário da Campanha</button>
+            <button id="nav-recipes" class="nav-btn">Livro de Receitas</button>
+            <button id="nav-login" class="nav-btn login-btn">Entrar</button>
+        </nav>
+    </header>
+
+    <main id="app-content" class="container">
+        <section class="welcome-screen">
+            <h2>Bem-vindos à Taverna, Aventureiros!</h2>
+            <p>Faça login para registrar os horrores (e as delícias) que encontramos nas masmorras.</p>
+        </section>
+        <section id="recipe-section" class="app-section" style="display: none;">
+            <div class="section-header">
+                <h2>Livro de Receitas Monstrosas</h2>
+                <button id="btn-new-recipe" class="action-btn">+ Nova Receita</button>
+            </div>
+
+            <div id="recipe-form-container" class="form-container" style="display: none;">
+                <h3>Preparar novo prato</h3>
+                <form id="recipe-form">
+                    <input type="text" id="recipe-title" placeholder="Nome do Prato (Ex: Assado de Basilisco)" required>
+                    <input type="text" id="recipe-character" placeholder="Nome do seu Personagem (Ex: Senshi)" required>
+                    <textarea id="recipe-ingredients" placeholder="Ingredientes (Ex: 2 olhos de aranha, 1kg de carne de urso coruja...)" rows="4" required></textarea>
+                    
+                    <textarea id="recipe-steps" placeholder="Modo de Preparo" rows="4" required></textarea>
+                    
+                    <label for="recipe-image">Ilustração do prato:</label>
+                    <input type="file" id="recipe-image" accept="image/*">
+                    
+                    <div class="form-actions">
+                        <button type="button" id="btn-cancel-recipe" class="cancel-btn">Cancelar</button>
+                        <button type="submit" class="save-btn">Salvar no Livro</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="recipes-list" class="recipes-grid">
+                </div>
+        </section>
+        <section id="diary-section" class="app-section" style="display: none;">
+            <div class="section-header">
+                <h2>Diário da Campanha</h2>
+                <button id="btn-new-diary" class="action-btn">+ Novo Relato</button>
+            </div>
+
+            <div id="diary-form-container" class="form-container" style="display: none;">
+                <h3>Escrever no Diário</h3>
+                <form id="diary-form">
+                    <input type="text" id="diary-title" placeholder="Título do Relato (Ex: A Caverna dos Goblins)" required>
+                    
+                    <input type="number" id="diary-session" placeholder="Número da Sessão (Ex: 1)" required>
+                    
+                    <textarea id="diary-content" placeholder="O que aconteceu nesta aventura? Tesouros? Ferimentos? Relate aqui..." rows="6" required></textarea>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="btn-cancel-diary" class="cancel-btn">Cancelar</button>
+                        <button type="submit" class="save-btn">Guardar Memória</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="diary-list" class="diary-grid">
+                </div>
+        </section>
+    </main>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

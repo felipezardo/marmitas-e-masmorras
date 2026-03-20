@@ -1,0 +1,323 @@
+// ==========================================
+// VARIÁVEIS DE TEMA (Estilo Masmorra/Taverna)
+// ==========================================
+$color-parchment: #f4ecd8;
+$color-ink: #2c1e16;
+$color-wood: #3e2723;
+$color-forest: #2e4d35;
+$color-blood: #8b0000;
+$font-main: 'Georgia', serif;
+$font-ui: 'Arial', sans-serif;
+
+// ==========================================
+// RESET E BASE (Mobile First)
+// ==========================================
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: $color-parchment;
+    color: $color-ink;
+    font-family: $font-main;
+    line-height: 1.6;
+    // Uma textura sutil de papel de fundo seria incrível aqui no futuro!
+}
+
+.container {
+    padding: 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+// ==========================================
+// CABEÇALHO E NAVEGAÇÃO
+// ==========================================
+.tavern-header {
+    background-color: $color-wood;
+    color: $color-parchment;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    border-bottom: 4px solid $color-forest;
+
+    .logo {
+        margin-bottom: 1rem;
+
+        h1 {
+            font-size: 2.2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #d4af37; // Tom de ouro envelhecido
+        }
+        p {
+            font-style: italic;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+    }
+
+    .main-nav {
+        display: flex;
+        flex-direction: column; // Botões empilhados no celular
+        gap: 0.5rem;
+
+        .nav-btn {
+            background-color: transparent;
+            color: $color-parchment;
+            border: 1px solid $color-parchment;
+            padding: 0.6rem;
+            border-radius: 4px;
+            font-family: $font-ui;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &:hover {
+                background-color: $color-forest;
+                border-color: $color-forest;
+            }
+
+            &.login-btn {
+                background-color: $color-blood;
+                border-color: $color-blood;
+
+                &:hover {
+                    background-color: darken($color-blood, 10%);
+                }
+            }
+        }
+    }
+}
+
+// ==========================================
+// CONTEÚDO PRINCIPAL
+// ==========================================
+.welcome-screen {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 2rem;
+    border: 2px dashed $color-wood;
+    border-radius: 8px;
+
+    h2 {
+        margin-bottom: 1rem;
+        color: $color-wood;
+    }
+}
+
+// ==========================================
+// RESPONSIVIDADE (Tablets e Desktops)
+// ==========================================
+@media (min-width: 768px) {
+    .tavern-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: left;
+
+        .logo {
+            margin-bottom: 0;
+        }
+
+        .main-nav {
+            flex-direction: row; // Botões lado a lado em telas maiores
+            gap: 1rem;
+        }
+    }
+}
+
+// ==========================================
+// SEÇÕES E FORMULÁRIOS
+// ==========================================
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid $color-forest;
+    padding-bottom: 0.5rem;
+}
+
+.action-btn, .save-btn, .cancel-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: $font-ui;
+}
+
+.action-btn, .save-btn {
+    background-color: $color-forest;
+    color: $color-parchment;
+}
+
+.cancel-btn {
+    background-color: transparent;
+    border: 1px solid $color-blood;
+    color: $color-blood;
+}
+
+.form-container {
+    background-color: rgba($color-wood, 0.1);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    border: 1px solid $color-wood;
+
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid $color-wood;
+            background-color: $color-parchment;
+            font-family: $font-main;
+            border-radius: 4px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+    }
+}
+
+// ==========================================
+// CARTÕES DE RECEITA
+// ==========================================
+.recipes-grid {
+    display: grid;
+    grid-template-columns: 1fr; // Uma coluna no celular
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.recipe-card {
+    background-color: lighten($color-parchment, 5%);
+    border: 2px solid rgba($color-wood, 0.3);
+    padding: 1.5rem;
+    border-radius: 6px;
+    box-shadow: 3px 3px 0px rgba($color-wood, 0.2);
+
+    .recipe-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px solid rgba($color-wood, 0.2);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+
+        h3 {
+            color: $color-blood;
+            font-size: 1.5rem;
+            margin: 0; // Remove a margem extra do h3
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            color: $color-blood;
+            border: 1px solid $color-blood;
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+
+            &:hover {
+                background-color: $color-blood;
+                color: $color-parchment;
+            }
+        }
+    }
+
+    .recipe-photo {
+        width: 100%;
+        max-height: 250px;
+        object-fit: cover;
+        border-radius: 4px;
+        border: 2px solid rgba($color-wood, 0.5);
+        margin-bottom: 1rem;
+    }
+
+    p {
+        margin-bottom: 0.8rem;
+        font-size: 0.95rem;
+    }
+}
+
+// Em telas maiores, mostra 2 receitas lado a lado
+@media (min-width: 768px) {
+    .recipes-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+// ==========================================
+// DIÁRIO DA CAMPANHA
+// ==========================================
+.diary-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.diary-card {
+    background-color: darken($color-parchment, 3%); // Um tom um pouco mais fechado
+    border: 1px solid rgba($color-wood, 0.4);
+    border-left: 6px solid $color-forest; // Detalhe lateral verde
+    padding: 1.5rem;
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba($color-wood, 0.15);
+
+    .diary-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px dashed rgba($color-wood, 0.3);
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+
+        h3 {
+            color: $color-ink;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            
+            .session-badge {
+                background-color: $color-wood;
+                color: $color-parchment;
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.85rem;
+                font-weight: bold;
+            }
+        }
+    }
+
+    .diary-meta {
+        font-size: 0.85rem;
+        color: lighten($color-ink, 20%);
+        font-style: italic;
+        margin-bottom: 1rem;
+    }
+
+    .diary-body {
+        white-space: pre-wrap; // Dica Mágica: isso faz o HTML respeitar quebras de linha sem precisar do ".replace('<br>')"
+        font-size: 1rem;
+        line-height: 1.8;
+    }
+}
