@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-// Adicionado updateDoc para a função de Editar!
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+// Adicionado o getDoc para lermos a senha no banco de dados
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA9M-0fxUhEACrxyOI3au7yxwACC4Xfplw",
@@ -25,21 +25,46 @@ const btnLogin = document.getElementById('nav-login');
 const welcomeScreen = document.querySelector('.welcome-screen');
 let currentUser = null;
 
-// Receitas
 const btnNavRecipes = document.getElementById('nav-recipes');
 const recipeSection = document.getElementById('recipe-section');
 const recipesList = document.getElementById('recipes-list');
 
-// Diário
 const btnNavDiary = document.getElementById('nav-diary');
 const diarySection = document.getElementById('diary-section');
 const diaryFormContainer = document.getElementById('diary-form-container');
 const diaryForm = document.getElementById('diary-form');
 const diaryList = document.getElementById('diary-list');
 
-// Variáveis de Controle do Diário
-let diaryTags = []; // Guarda as tags temporariamente
-let editingDiaryId = null; // Guarda o ID se estivermos editando
+let diaryTags = []; 
+let editingDiaryId = null;
+
+// ==========================================
+// GUARDIÃO DA TAVERNA (Verificação de Senha)
+// ==========================================
+async function verificarSenha() {
+    let senhaOficial = "dragão"; // Senha padrão caso dê erro na busca
+    
+    try {
+        // Vai no Firebase na coleção 'config', documento 'seguranca'
+        const docRef = await getDoc(doc(db, "config", "seguranca"));
+        if (docRef.exists()) {
+            senhaOficial = docRef.data().palavraChave;
+        }
+    } catch(e) {
+        console.warn("Não consegui ler a senha do cofre, usando a padrão.");
+    }
+
+    // Pergunta a senha pro usuário
+    const tentativa = prompt("O guardião cruza as alabardas na porta: 'Diga a palavra-passe para modificar o livro!'");
+    
+    // Se a pessoa cancelar (null) ou digitar errado
+    if (!tentativa || tentativa.trim().toLowerCase() !== senhaOficial.toLowerCase()) {
+        alert("Acesso Negado! Os guardas te expulsaram.");
+        return false; // Bloqueia a ação
+    }
+    
+    return true; // Libera a ação
+}
 
 // ==========================================
 // LOGIN & NAV
@@ -110,7 +135,10 @@ document.getElementById('tags-preview').addEventListener('click', (e) => {
 // ==========================================
 // MÓDULO: DIÁRIO
 // ==========================================
-document.getElementById('btn-new-diary').addEventListener('click', () => {
+// ADICIONADO A VERIFICAÇÃO DE SENHA ANTES DE ABRIR O FORMULÁRIO
+document.getElementById('btn-new-diary').addEventListener('click', async () => {
+    if (!await verificarSenha()) return; // Se a senha for errada, para aqui.
+
     editingDiaryId = null;
     diaryTags = [];
     document.getElementById('diary-form-title').innerText = "Escrever no Diário";
@@ -143,7 +171,6 @@ async function carregarDiario() {
             const dataRelato = relato.data.toDate().toLocaleDateString('pt-BR');
             const nomeExibicao = relato.personagem ? `${relato.personagem} (${relato.autor})` : relato.autor;
             
-            // Botões de Ação (SVGs)
             let actionButtons = '';
             if (currentUser && currentUser.uid === relato.autorId) {
                 actionButtons = `
@@ -152,7 +179,6 @@ async function carregarDiario() {
                 `;
             }
 
-            // Gerar HTML das Tags
             let tagsHtml = '';
             if (relato.tags && relato.tags.length > 0) {
                 tagsHtml = '<div class="tags-list">' + relato.tags.map(t => `<span class="rpg-tag" style="background-color: ${t.color}">${t.name}</span>`).join('') + '</div>';
@@ -172,7 +198,6 @@ async function carregarDiario() {
                 ${tagsHtml}
             `;
             
-            // Salva os dados brutos no elemento caso a pessoa queira editar
             card.dataset.relato = JSON.stringify(relato);
             diaryList.appendChild(card);
         });
@@ -196,10 +221,8 @@ diaryForm.addEventListener('submit', async (evento) => {
 
     try {
         if (editingDiaryId) {
-            // Se tem um ID, nós ATUALIZAMOS
             await updateDoc(doc(db, "diario", editingDiaryId), relatoData);
         } else {
-            // Se não tem ID, nós CRIAMOS um novo (e adicionamos a data)
             relatoData.data = new Date();
             await addDoc(collection(db, "diario"), relatoData);
         }
@@ -208,12 +231,14 @@ diaryForm.addEventListener('submit', async (evento) => {
     } catch (e) { alert("Erro ao salvar."); console.error(e); }
 });
 
-// Delegação de cliques para Editar/Apagar no Diário
 diaryList.addEventListener('click', async (evento) => {
     const btnDel = evento.target.closest('.diary-del');
     const btnEdit = evento.target.closest('.diary-edit');
 
     if (btnDel) {
+        // ADICIONADO A VERIFICAÇÃO DE SENHA PARA APAGAR
+        if (!await verificarSenha()) return;
+        
         if (confirm("Deseja apagar esse relato da história?")) {
             await deleteDoc(doc(db, "diario", btnDel.getAttribute('data-id')));
             carregarDiario();
@@ -221,11 +246,13 @@ diaryList.addEventListener('click', async (evento) => {
     }
 
     if (btnEdit) {
+        // ADICIONADO A VERIFICAÇÃO DE SENHA PARA EDITAR
+        if (!await verificarSenha()) return;
+
         const id = btnEdit.getAttribute('data-id');
         const card = btnEdit.closest('.diary-card');
         const relato = JSON.parse(card.dataset.relato);
 
-        // Preenche o formulário com os dados antigos
         document.getElementById('diary-title').value = relato.titulo;
         document.getElementById('diary-character').value = relato.personagem || '';
         document.getElementById('diary-session').value = relato.sessao;
@@ -235,21 +262,29 @@ diaryList.addEventListener('click', async (evento) => {
         diaryTags = relato.tags || [];
         renderizarTagsFormulario();
 
-        editingDiaryId = id; // Marca que estamos editando!
+        editingDiaryId = id; 
         document.getElementById('diary-form-title').innerText = "Editar Relato";
         document.getElementById('btn-save-diary').innerText = "Atualizar Memória";
         diaryFormContainer.style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola a página pro topo
+        window.scrollTo({ top: 0, behavior: 'smooth' }); 
     }
 });
 
 // ==========================================
-// MÓDULO: RECEITAS (Resumido para espaço)
+// MÓDULO: RECEITAS
 // ==========================================
-document.getElementById('btn-new-recipe').addEventListener('click', () => { document.getElementById('recipe-form-container').style.display = 'block'; });
-document.getElementById('btn-cancel-recipe').addEventListener('click', () => { document.getElementById('recipe-form-container').style.display = 'none'; document.getElementById('recipe-form').reset(); });
+// ADICIONADO A VERIFICAÇÃO DE SENHA PARA NOVA RECEITA
+document.getElementById('btn-new-recipe').addEventListener('click', async () => { 
+    if (!await verificarSenha()) return;
+    document.getElementById('recipe-form-container').style.display = 'block'; 
+});
 
-async function carregarReceitas() { /* ... O código das receitas continua igual ao que te mandei antes, mas adicione os SVGs se quiser! ... */ 
+document.getElementById('btn-cancel-recipe').addEventListener('click', () => { 
+    document.getElementById('recipe-form-container').style.display = 'none'; 
+    document.getElementById('recipe-form').reset(); 
+});
+
+async function carregarReceitas() { 
     recipesList.innerHTML = '';
     const querySnapshot = await getDocs(query(collection(db, "receitas"), orderBy("data", "desc")));
     querySnapshot.forEach((docSnap) => {
@@ -292,5 +327,13 @@ document.getElementById('recipe-form').addEventListener('submit', async (e) => {
 
 recipesList.addEventListener('click', async (e) => {
     const btnDel = e.target.closest('.recipe-del');
-    if (btnDel && confirm("Queimar receita?")) { await deleteDoc(doc(db, "receitas", btnDel.getAttribute('data-id'))); carregarReceitas(); }
+    if (btnDel) {
+        // ADICIONADO A VERIFICAÇÃO DE SENHA PARA APAGAR RECEITA
+        if (!await verificarSenha()) return;
+        
+        if (confirm("Queimar receita?")) { 
+            await deleteDoc(doc(db, "receitas", btnDel.getAttribute('data-id'))); 
+            carregarReceitas(); 
+        }
+    }
 });
