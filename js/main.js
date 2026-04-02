@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 // Adicionado o getDoc para lermos a senha no banco de dados
 import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, orderBy, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
@@ -70,7 +70,11 @@ async function verificarSenha() {
 // LOGIN & NAV
 // ==========================================
 btnLogin.addEventListener('click', () => {
-    if (!currentUser) signInWithPopup(auth, new GoogleAuthProvider()).catch(e => console.error(e));
+    if (currentUser) {
+        signOut(auth);
+    } else {
+        signInWithPopup(auth, new GoogleAuthProvider()).catch(e => console.error(e));
+    }
 });
 
 onAuthStateChanged(auth, (user) => {
