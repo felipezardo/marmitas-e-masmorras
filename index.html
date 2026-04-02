@@ -3,35 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beast Feast - Daggerheart</title>
+    <title>Marmitas & Masmorras</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header class="tavern-header">
-        <div class="logo">
-            <h1>Beast Feast</h1>
-            <p>Guia de Sobrevivência e Culinária</p>
-        </div>
-        <nav class="main-nav">
-            <button id="nav-diary" class="nav-btn">Diário da Campanha</button>
-            <button id="nav-recipes" class="nav-btn">Livro de Receitas</button>
-            <button id="nav-login" class="nav-btn login-btn">Entrar</button>
-        </nav>
-    </header>
-
-    <main id="app-content" class="container">
-        <section class="welcome-screen">
-            <h2>Bem-vindos à Taverna, Aventureiros!</h2>
-            <p>Faça login para registrar os horrores (e as delícias) que encontramos nas masmorras.</p>
-        </section>
-
-        <section id="recipe-section" class="app-section" style="display: none;">
-            <div class="section-header">
-                <h2>Livro de Receitas Monstrosas</h2>
-                <button id="btn-new-recipe" class="action-btn">+ Nova Receita</button>
+    <div class="flip-book-container">
+        <div class="flip-book" id="book">
+            <div class="page page-cover" data-density="hard">
+                <div class="page-content">
+                    <div class="cover-content">
+                        <h1>Marmitas & Masmorras</h1>
+                        <div class="chef-input-container">
+                            <label for="chef-name">Cozinheiro:</label>
+                            <input type="text" id="chef-name" name="chef-name" placeholder="Seu nome de aventureiro...">
+                            <button id="confirm-chef-name">Abrir o livro</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div id="recipe-form-container" class="form-container" style="display: none;">
+            <div class="page">
+                <div class="page-content">
+                    <h2>Índice</h2>
+                    <nav class="table-of-contents">
+                        <button id="nav-recipes" class="nav-btn">Receitas</button>
+                        <button id="nav-diary" class="nav-btn">Diário das Sessões</button>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="page">
+                <div class="page-content" id="recipe-section-placeholder">
+                    <div class="section-header">
+                        <h2>Livro de Receitas</h2>
+                        <button id="btn-new-recipe" class="action-btn">+ Nova Receita</button>
+                    </div>
+                    <div id="recipes-list-container">
+                        </div>
+                </div>
+            </div>
+
+            <div class="page">
+                <div class="page-content" id="diary-section-placeholder">
+                    <div class="section-header">
+                        <h2>Diário da Campanha</h2>
+                        <button id="btn-new-diary" class="action-btn">+ Novo Relato</button>
+                    </div>
+                    <div id="diary-list-container">
+                        </div>
+                </div>
+            </div>
+
+            <div class="page">
+                <div class="page-content">
+                    <div class="section-header">
+                        <h2>Anotações Sujas de Sangue</h2>
+                    </div>
+                    <p style="text-align: center; color: #a0a0a0; font-style: italic; margin-top: 3rem;">
+                        Página deixada em branco intencionalmente para não atrair feras...
+                    </p>
+                </div>
+            </div>
+
+            <div class="page page-cover" data-density="hard">
+                <div class="page-content">
+                    <h2>Fim</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+    <script type="module" src="js/main.js"></script>
+
+    <div id="recipe-form-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div id="recipe-form-container" class="form-container">
                 <h3>Preparar novo prato</h3>
                 <form id="recipe-form">
                     <input type="text" id="recipe-title" placeholder="Nome do Prato (Ex: Assado de Basilisco)" required>
@@ -48,16 +95,12 @@
                     </div>
                 </form>
             </div>
-            <div id="recipes-list" class="recipes-grid"></div>
-        </section>
+        </div>
+    </div>
 
-        <section id="diary-section" class="app-section" style="display: none;">
-            <div class="section-header">
-                <h2>Diário da Campanha</h2>
-                <button id="btn-new-diary" class="action-btn">+ Novo Relato</button>
-            </div>
-
-            <div id="diary-form-container" class="form-container" style="display: none;">
+    <div id="diary-form-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div id="diary-form-container" class="form-container">
                 <h3 id="diary-form-title">Escrever no Diário</h3>
                 <form id="diary-form">
                     <input type="text" id="diary-title" placeholder="Título do Relato (Ex: A Caverna dos Goblins)" required>
@@ -86,10 +129,7 @@
                     </div>
                 </form>
             </div>
-            <div id="diary-list" class="diary-grid"></div>
-        </section>
-    </main>
-
-    <script type="module" src="js/main.js"></script>
+        </div>
+    </div>
 </body>
 </html>

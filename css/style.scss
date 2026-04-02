@@ -1,156 +1,582 @@
-// ==========================================
-// VARIÁVEIS E TEMA
-// ==========================================
-$color-parchment: #f4ecd8;
-$color-ink: #2c1e16;
-$color-wood: #3e2723;
-$color-forest: #2e4d35;
-$color-blood: #8b0000;
-$font-main: 'Georgia', serif;
-$font-ui: 'Arial', sans-serif;
+@use "sass:color";
 
-// Animação global
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+// ==========================================
+// VARIÁVEIS DE COR E TEMA
+// ==========================================
+$background-color: #16100c; // Fundo quase preto, lembrando madeira escura de taverna
+$text-color: #2c1e16;
+$book-cover-color: #611212; // Couro vermelho escuro envelhecido
+$book-cover-dark: #2b0404;  // Sombras profundas do couro
+$book-page-color: #e3d2b3;  // Pergaminho sujo/envelhecido
+$primary-accent-color: #2e4d35;
+$secondary-accent-color: #d4af37; // Dourado envelhecido
+$danger-color: #8b0000;
+
+// Fontes
+$font-main: "Georgia", serif;
+$font-title: "Cinzel", serif; // Uma fonte mais temática para títulos
+
+/* ==========================================
+   RESET BÁSICO
+========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    background-color: $color-parchment;
-    color: $color-ink;
+    background-color: $background-color;
+    color: $text-color;
     font-family: $font-main;
-    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden; // Para evitar barras de rolagem indesejadas na janela principal
 }
 
-.container { padding: 1rem; max-width: 900px; margin: 0 auto; }
+/* Container do Livro - Centraliza e define perspectiva */
+.flip-book-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-// ==========================================
-// CABEÇALHO E NAV
-// ==========================================
-.tavern-header {
-    background-color: $color-wood;
-    color: $color-parchment;
-    padding: 1.5rem 1rem;
-    text-align: center;
-    border-bottom: 4px solid $color-forest;
+/* O Livro em si */
+.flip-book {
+    width: 90vw;
+    height: 80vh;
+    max-width: 400px;
+    max-height: 600px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8); // Sombra mais forte para destacar da mesa
 
-    .logo {
-        margin-bottom: 1rem;
-        h1 { font-size: 2.2rem; text-transform: uppercase; letter-spacing: 2px; color: #d4af37; }
-        p { font-style: italic; font-size: 0.9rem; color: #ccc; }
+    // Para telas maiores, o livro fica mais largo
+    @media (min-width: 768px) {
+        max-width: 800px;
+        max-height: 600px;
+        width: 80vw;
+        height: 70vh;
+    }
+}
+
+/* ==========================================
+   ESTILO GERAL DAS PÁGINAS (PERGAMINHO)
+========================================== */
+.page {
+    background-color: $book-page-color;
+    
+    // Textura de papel rugoso (Filtro SVG inline)
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+    
+    // Sombras internas fortes para bordas queimadas/escurecidas
+    box-shadow: 
+        inset 0 0 40px rgba(90, 50, 15, 0.6),  // Borda suja
+        inset 0 0 100px rgba(90, 50, 15, 0.2), // Umidade
+        inset 0 0 5px rgba(50, 20, 0, 0.8),    // Contorno do corte da página
+        0 2px 5px rgba(0,0,0,0.5);             // Sombra da página em si
+    
+    border: 1px solid rgba(70, 40, 15, 0.5);
+    overflow: hidden;
+    position: relative; // Necessário para os pseudo-elementos
+
+    // Manchas aleatórias de "idade" e desgaste pelo papel
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        pointer-events: none; // Para não bloquear os cliques
+        background: 
+            radial-gradient(circle at 10% 20%, rgba(90, 50, 10, 0.1) 0%, transparent 20%),
+            radial-gradient(circle at 80% 90%, rgba(90, 50, 10, 0.15) 0%, transparent 30%),
+            radial-gradient(circle at 90% 10%, rgba(139, 0, 0, 0.05) 0%, transparent 15%); // Mancha leve de sangue/vinho
+        mix-blend-mode: multiply;
+        z-index: 10;
     }
 
-    .main-nav {
-        display: flex; flex-direction: column; gap: 0.5rem;
-        .nav-btn {
-            background-color: transparent; color: $color-parchment; border: 1px solid $color-parchment;
-            padding: 0.6rem; border-radius: 4px; font-family: $font-ui; font-weight: bold; cursor: pointer;
-            transition: all 0.3s ease;
-            &:hover { background-color: $color-forest; border-color: $color-forest; transform: translateY(-2px); }
-            &.login-btn {
-                background-color: $color-blood; border-color: $color-blood;
-                &:hover { background-color: darken($color-blood, 10%); }
+    .page-content {
+        padding: 1.5rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        text-align: left;
+        overflow-y: auto; 
+        position: relative;
+        z-index: 20;
+
+        // BARRA DE ROLAGEM TEMÁTICA
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+        &::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: rgba(90, 50, 15, 0.5);
+            border-radius: 4px;
+            &:hover {
+                background-color: rgba(90, 50, 15, 0.8);
             }
         }
     }
 }
 
-.welcome-screen { text-align: center; margin-top: 2rem; padding: 2rem; border: 2px dashed $color-wood; border-radius: 8px; h2 { color: $color-wood; margin-bottom: 1rem;} }
+/* ==========================================
+   CAPA E CONTRACAPA (COURO VERMELHO)
+========================================== */
+.page-cover {
+    // Gradiente imitando o relevo da luz batendo no couro
+    background: radial-gradient(circle at 50% 50%, $book-cover-color 0%, $book-cover-dark 100%);
+    
+    // Sombras internas pesadas para parecer couro esticado em madeira
+    box-shadow: 
+        inset 0 0 30px rgba(0,0,0,0.9), 
+        inset 0 0 10px rgba(0,0,0,0.8);
+    
+    border: 3px solid #1a0202;
+    border-radius: 2px 8px 8px 2px;
 
-@media (min-width: 768px) {
-    .tavern-header {
-        display: flex; justify-content: space-between; align-items: center; text-align: left;
-        .logo { margin-bottom: 0; }
-        .main-nav { flex-direction: row; gap: 1rem; }
+    // Textura forte de couro usando ruído SVG
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.25'/%3E%3C/svg%3E");
+        pointer-events: none;
+        mix-blend-mode: multiply;
+        z-index: 10;
+    }
+
+    .page-content {
+       justify-content: space-around;
+       text-align: center;
+    }
+    
+    h1, h2 {
+        font-family: $font-title;
+        color: $secondary-accent-color;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.9), 0 0 10px rgba(212, 175, 55, 0.2);
+        position: relative;
+        z-index: 20; // Acima da textura do couro
     }
 }
 
-// ==========================================
-// FORMULÁRIOS
-// ==========================================
-.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 2px solid $color-forest; padding-bottom: 0.5rem; }
+/* Conteúdo específico da capa frontal */
+.cover-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+    position: relative;
+    z-index: 20; // Acima da textura
 
-.action-btn, .save-btn, .cancel-btn { padding: 0.5rem 1rem; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-family: $font-ui; transition: all 0.2s; }
-.action-btn, .save-btn { background-color: $color-forest; color: $color-parchment; &:hover { background-color: darken($color-forest, 10%); } }
-.cancel-btn { background-color: transparent; border: 1px solid $color-blood; color: $color-blood; &:hover { background-color: $color-blood; color: $color-parchment; } }
+    h1 {
+        font-size: 2.5rem;
+        letter-spacing: 2px;
+    }
+
+    .chef-input-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        width: 80%;
+        
+        label {
+            font-size: 1.1rem;
+            color: $book-page-color; // Alterado para dar contraste na capa escura
+        }
+
+        input[type="text"] {
+            padding: 0.8rem;
+            border: 2px solid $secondary-accent-color;
+            background-color: rgba(0,0,0,0.5); // Fundo translúcido para a capa
+            color: $secondary-accent-color;
+            border-radius: 4px;
+            font-family: $font-main;
+            font-style: italic;
+            &:focus {
+                outline: none;
+                box-shadow: 0 0 5px $secondary-accent-color;
+            }
+        }
+
+        button {
+            padding: 0.8rem;
+            border: 1px solid $secondary-accent-color;
+            background-color: transparent;
+            color: $secondary-accent-color;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            &:hover {
+                background-color: $secondary-accent-color;
+                color: $book-cover-dark;
+            }
+        }
+    }
+}
+
+/* ==========================================
+   ÍNDICE E NAVEGAÇÃO
+========================================== */
+.table-of-contents {
+    justify-content: center;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    
+    .nav-btn {
+        background: none;
+        border: 2px solid $primary-accent-color;
+        color: $primary-accent-color;
+        padding: 1rem 2rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+            background-color: $primary-accent-color;
+            color: $book-page-color;
+            transform: scale(1.05);
+        }
+    }
+}
+
+/* ==========================================
+   LISTAS E HEADER DAS SEÇÕES
+========================================== */
+#recipes-list-container, #diary-list-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding-top: 1rem;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid $primary-accent-color;
+  padding-bottom: 0.5rem;
+
+  h2 {
+    font-family: $font-title;
+    font-size: 1.5rem;
+    color: $text-color;
+    margin: 0;
+  }
+}
+
+.action-btn {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: sans-serif;
+  transition: all 0.2s;
+  background-color: $primary-accent-color;
+  color: $book-page-color;
+
+  &:hover {
+    background-color: color.adjust($primary-accent-color, $lightness: 10%);
+  }
+}
+
+/* ==========================================
+   CARTÕES DE RECEITAS E DIÁRIO
+========================================== */
+.recipe-card, .diary-card {
+    background-color: rgba(255, 255, 255, 0.05); // Transparente para mesclar com a página
+    border: none;
+    border-bottom: 2px dashed rgba(90, 50, 15, 0.3); // Separação estilo anotação velha
+    padding: 1rem 0;
+    border-radius: 0;
+    animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.recipe-card-header, .diary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid rgba(90, 50, 15, 0.2);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    
+    h3 {
+        color: $danger-color;
+        font-size: 1.3rem;
+        margin: 0;
+    }
+}
+
+.recipe-photo {
+    width: 100%;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 2px solid rgba(90, 50, 15, 0.4);
+    margin-bottom: 1rem;
+}
+
+.recipe-card p {
+    margin-bottom: 0.8rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.diary-card {
+    border-left: 4px solid rgba(139, 0, 0, 0.6); // Vermelho sangue na borda
+    padding-left: 1rem;
+}
+
+.diary-header h3 {
+    color: $text-color;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.diary-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+
+    .badge {
+        padding: 0.2rem 0.6rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: bold;
+    }
+    .session-badge {
+        background-color: rgba(90, 50, 15, 0.8);
+        color: $book-page-color;
+    }
+    .fear-badge {
+        background-color: rgba(139, 0, 0, 0.1);
+        border: 1px solid $danger-color;
+        color: $danger-color;
+    }
+}
+
+.diary-meta {
+    font-size: 0.8rem;
+    color: color.adjust($text-color, $lightness: 30%);
+    font-style: italic;
+    margin-bottom: 1rem;
+}
+
+.diary-body {
+    white-space: pre-wrap;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.rpg-tag {
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-family: sans-serif;
+  font-weight: bold;
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  svg {
+    width: 18px;
+    height: 18px;
+    transition: stroke 0.2s;
+  }
+  
+  &.edit-btn svg { stroke: $primary-accent-color; }
+  &.delete-btn svg { stroke: $danger-color; }
+  
+  &:hover {
+    background: rgba(90, 50, 15, 0.1);
+    transform: scale(1.1);
+  }
+}
+
+/* ==========================================
+   MODAL DE FORMULÁRIO (Fora do Livro)
+========================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 1rem;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+
+    &.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    
+    &::-webkit-scrollbar { width: 6px; }
+    &::-webkit-scrollbar-track { background: transparent; }
+    &::-webkit-scrollbar-thumb { background-color: $secondary-accent-color; border-radius: 4px; }
+}
 
 .form-container {
-    background-color: rgba($color-wood, 0.1); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid $color-wood; animation: fadeIn 0.3s ease;
-    form {
-        display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;
-        input[type="text"], input[type="number"], textarea { width: 100%; padding: 0.8rem; border: 1px solid $color-wood; background-color: $color-parchment; font-family: $font-main; border-radius: 4px; transition: border 0.3s; &:focus { outline: none; border-color: $color-forest; } }
-        
-        .form-row { display: flex; gap: 1rem; input { width: 50%; } }
-        
-        // Tags Creator
-        .tags-creator {
-            background: rgba($color-parchment, 0.5); padding: 1rem; border-radius: 4px; border: 1px dashed rgba($color-wood, 0.4);
-            label { font-size: 0.9rem; font-weight: bold; margin-bottom: 0.5rem; display: block; }
-            .tag-controls {
-                display: flex; gap: 0.5rem; margin-bottom: 0.5rem;
-                input[type="color"] { width: 40px; padding: 0; border: none; border-radius: 4px; cursor: pointer; background: transparent; height: 40px; }
-            }
-        }
-        .form-actions { display: flex; justify-content: flex-end; gap: 1rem; }
+  background-color: $book-page-color;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 2px solid $book-cover-color;
+  animation: fadeIn 0.3s ease;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+
+  h3 {
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(90, 50, 15, 0.2);
+      padding-bottom: 0.5rem;
+      font-family: $font-title;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  input[type=text], input[type=number], textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid rgba(90, 50, 15, 0.4);
+    background-color: rgba(255, 255, 255, 0.5);
+    font-family: $font-main;
+    border-radius: 4px;
+    transition: border 0.3s;
+
+    &:focus {
+      outline: none;
+      border-color: $primary-accent-color;
+      background-color: #fff;
     }
-}
+  }
 
-// ==========================================
-// TAGS (Estilo Notion)
-// ==========================================
-.tags-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
-.rpg-tag {
-    color: white; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-family: $font-ui; font-weight: bold; display: flex; align-items: center; gap: 0.5rem; box-shadow: 1px 1px 3px rgba(0,0,0,0.2); animation: fadeIn 0.2s ease;
-    .remove-tag { background: none; border: none; color: white; cursor: pointer; font-weight: bold; font-size: 1rem; line-height: 1; &:hover { color: #ffcccc; } }
-}
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    input { width: 50%; }
+  }
 
-// ==========================================
-// BOTÕES SVG (Editar e Apagar)
-// ==========================================
-.icon-btn {
-    background: transparent; border: none; cursor: pointer; padding: 0.2rem; border-radius: 4px; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center;
-    svg { width: 20px; height: 20px; transition: stroke 0.2s; }
-    &.edit-btn svg { stroke: $color-forest; }
-    &.delete-btn svg { stroke: $color-blood; }
+  .tags-creator {
+    background: rgba(90, 50, 15, 0.05);
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px dashed rgba(90, 50, 15, 0.4);
     
-    &:hover { background: rgba($color-wood, 0.1); transform: scale(1.1); }
-}
-
-// ==========================================
-// CARTÕES GERAIS E RECEITAS
-// ==========================================
-.recipes-grid, .diary-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 2rem; }
-@media (min-width: 768px) { .recipes-grid { grid-template-columns: repeat(2, 1fr); } }
-
-.recipe-card, .diary-card {
-    background-color: lighten($color-parchment, 5%); border: 2px solid rgba($color-wood, 0.3); padding: 1.5rem; border-radius: 6px; box-shadow: 3px 3px 0px rgba($color-wood, 0.2); animation: fadeIn 0.4s ease; transition: transform 0.2s ease;
-    &:hover { transform: translateY(-3px); box-shadow: 4px 4px 0px rgba($color-wood, 0.3); }
-}
-
-.recipe-card {
-    .recipe-card-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba($color-wood, 0.2); margin-bottom: 1rem; padding-bottom: 0.5rem; h3 { color: $color-blood; font-size: 1.5rem; margin: 0; } }
-    .recipe-photo { width: 100%; max-height: 250px; object-fit: cover; border-radius: 4px; border: 2px solid rgba($color-wood, 0.5); margin-bottom: 1rem; }
-    p { margin-bottom: 0.8rem; font-size: 0.95rem; }
-}
-
-// ==========================================
-// DIÁRIO DA CAMPANHA
-// ==========================================
-.diary-card {
-    border-left: 6px solid $color-forest;
-    .diary-header {
-        display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed rgba($color-wood, 0.3); margin-bottom: 1rem; padding-bottom: 0.5rem;
-        h3 { color: $color-ink; font-size: 1.5rem; margin: 0; }
-        .header-actions { display: flex; align-items: center; gap: 0.8rem; }
+    label {
+      font-size: 0.9rem;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+      display: block;
     }
-    .diary-badges {
-        display: flex; gap: 0.5rem; margin-bottom: 1rem;
-        .badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
-        .session-badge { background-color: $color-wood; color: $color-parchment; }
-        .fear-badge { background-color: #4a2511; color: #ff9d00; border: 1px solid #ff9d00; } // Estilo assustador
+    .tag-controls {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      
+      input[type=color] {
+        width: 40px;
+        padding: 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        background: transparent;
+        height: 40px;
+      }
     }
-    .diary-meta { font-size: 0.85rem; color: lighten($color-ink, 20%); font-style: italic; margin-bottom: 1rem; }
-    .diary-body { white-space: pre-wrap; font-size: 1rem; line-height: 1.8; margin-bottom: 1.5rem;}
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+}
+
+.cancel-btn {
+  background-color: transparent;
+  border: 1px solid $danger-color;
+  color: $danger-color;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: $danger-color;
+    color: $book-page-color;
+  }
+}
+
+.save-btn {
+    background-color: $primary-accent-color;
+    color: $book-page-color;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    &:hover {
+        background-color: color.adjust($primary-accent-color, $lightness: 10%);
+    }
 }
